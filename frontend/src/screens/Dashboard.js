@@ -1,45 +1,76 @@
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import { BLACK, WHITE } from "../components/Colors";
 import { Waves } from "../components/AsstesImports";
 
 export default function Dashboard() {
     return (
         <div className="why-ai-container">
-            <video src={Waves} autoPlay loop muted playsInline className="background-video" />
+            <video
+                src={Waves}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="background-video"
+                aria-hidden="true"
+            />
+
+            <div className="overlay"></div>
 
             <div className="content">
-                <h1>Why This AI?</h1>
+                <motion.h1
+                    initial={{ opacity: 0, y: -30 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                >
+                    Why This AI?
+                </motion.h1>
 
-                <p>
+                <motion.p
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3, duration: 0.6 }}
+                >
                     As a <span className="highlight">React Native</span> developer, I built this AI to guide other developers like me.
                     Whether you’re starting a new project, looking for ideas, or stuck with code,
                     this AI provides you with the best guidance — tailored for <span className="highlight">React Native</span>.
-                </p>
+                </motion.p>
 
                 <div className="features">
-                    <div className="card">
-                        <h3>🚀 Project Ideas</h3>
-                        <p>
-                            Get unique project ideas designed for <span className="highlight">React Native</span>, from beginner apps to advanced systems.
-                        </p>
-                    </div>
-
-                    <div className="card">
-                        <h3>💡 Code Guidance</h3>
-                        <p>
-                            Ask for any <span className="highlight">React Native</span> code snippet — authentication, UI, APIs, or animations — and get instant help.
-                        </p>
-                    </div>
-
-                    <div className="card">
-                        <h3>📚 Best Practices</h3>
-                        <p>
-                            Learn optimized ways of writing <span className="highlight">React Native</span> apps with clean architecture and performance tips.
-                        </p>
-                    </div>
+                    {[
+                        {
+                            title: "🚀 Project Ideas",
+                            text: "Get unique project ideas designed for React Native, from beginner apps to advanced systems."
+                        },
+                        {
+                            title: "💡 Code Guidance",
+                            text: "Ask for any React Native code snippet — authentication, UI, APIs, or animations — and get instant help."
+                        },
+                        {
+                            title: "📚 Best Practices",
+                            text: "Learn optimized ways of writing React Native apps with clean architecture and performance tips."
+                        }
+                    ].map((item, i) => (
+                        <motion.div
+                            className="card"
+                            key={i}
+                            initial={{ opacity: 0, y: 40 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: 0.4 + i * 0.2, duration: 0.6 }}
+                        >
+                            <h3>{item.title}</h3>
+                            <p>{item.text}</p>
+                        </motion.div>
+                    ))}
                 </div>
 
-                <div className="developer-section">
+                <motion.div
+                    className="developer-section"
+                    initial={{ opacity: 0, y: 40 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1, duration: 0.6 }}
+                >
                     <h2>👨‍💻 Built for Developers, by a Developer</h2>
                     <p>
                         I am <b>Shubham Singh Boura</b>, a <span className="highlight">React Native</span> developer with{" "}
@@ -56,21 +87,22 @@ export default function Dashboard() {
                             Start Using AI
                         </Link>
                     </div>
-                </div>
+                </motion.div>
             </div>
 
             <style>{`
-                .why-ai-container {
-                    display: flex;
-                    background-color: ${BLACK};
-                    height: 100vh;
-                    width: 100vw;
-                    overflow: hidden;
-                    position: relative;
-                    justify-content: center;
-                    align-items: center;
-                }
-
+             .why-ai-container {
+                background-color: ${BLACK};
+                min-height: 100vh;  
+                width: 100vw;
+                overflow-x: hidden;  
+                overflow-y: auto;   
+                position: relative;
+                justify-content: center;
+                align-items: center;
+                flex-direction: column;
+                display: flex;
+}
                 .background-video {
                     position: absolute;
                     top: 0;
@@ -78,6 +110,16 @@ export default function Dashboard() {
                     width: 100%;
                     height: 100%;
                     object-fit: cover;
+                    z-index: 0;
+                }
+
+                .overlay {
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.4);
                     z-index: 0;
                 }
 
@@ -91,13 +133,13 @@ export default function Dashboard() {
                 }
 
                 .content h1 {
-                    font-size: 42px;
+                    font-size: clamp(28px, 5vw, 42px);
                     font-weight: bold;
                     margin-bottom: 20px;
                 }
 
                 .content p {
-                    font-size: 18px;
+                    font-size: clamp(16px, 2.5vw, 18px);
                     line-height: 1.6;
                     max-width: 700px;
                     margin: 0 auto;
@@ -127,12 +169,13 @@ export default function Dashboard() {
                     padding: 20px;
                     background: rgba(255, 255, 255, 0.1);
                     border-radius: 12px;
-                    transition: transform 0.3s ease, background 0.3s ease;
+                    transition: transform 0.3s ease, background 0.3s ease, border 0.3s ease;
                 }
 
                 .card:hover {
-                    transform: translateY(-5px);
+                    transform: translateY(-8px) scale(1.03);
                     background: rgba(255, 255, 255, 0.15);
+                    border: 1px solid rgba(255, 255, 255, 0.3);
                 }
 
                 .card h3 {
@@ -145,12 +188,12 @@ export default function Dashboard() {
                 }
 
                 .developer-section h2 {
-                    font-size: 28px;
+                    font-size: clamp(22px, 4vw, 28px);
                     margin-bottom: 15px;
                 }
 
                 .developer-section p {
-                    font-size: 18px;
+                    font-size: clamp(16px, 2.5vw, 18px);
                     max-width: 850px;
                     margin: 0 auto 30px;
                     line-height: 1.6;
@@ -177,7 +220,26 @@ export default function Dashboard() {
                     overflow: hidden;
                 }
 
-                /* Hover effect */
+                /* Hover effect with shine */
+                .start-btn::before {
+                    content: "";
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(
+                        120deg,
+                        transparent,
+                        rgba(255,255,255,0.6),
+                        transparent
+                    );
+                    transition: 0.5s;
+                }
+                .start-btn:hover::before {
+                    left: 100%;
+                }
+
                 .start-btn:hover {
                     background: linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77);
                     color: ${BLACK};
