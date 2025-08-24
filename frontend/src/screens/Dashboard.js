@@ -1,7 +1,9 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { BLACK, WHITE } from "../components/Colors";
 import { Waves } from "../components/AsstesImports";
+
 
 export default function Dashboard() {
     return (
@@ -82,10 +84,24 @@ export default function Dashboard() {
                         carrying my persona, my guidance style, and my supportive nature.
                         When you interact with this AI, it’s like you are directly talking to me.
                     </p>
+
                     <div className="button-group">
                         <Link to="/Chat" className="start-btn">
                             Start Using AI
                         </Link>
+                    </div>
+
+                    {/* Social Icons */}
+                    <div className="social-links">
+                        <a href="https://github.com/shubhamsinghboura/Shubio.git" target="_blank" rel="noopener noreferrer">
+                            <FaGithub />
+                        </a>
+                        <a href="https://www.linkedin.com/in/shubham-singh-0a4449200/" target="_blank" rel="noopener noreferrer">
+                            <FaLinkedin />
+                        </a>
+                        <a href="https://x.com/shubhamsin64167?s=21" target="_blank" rel="noopener noreferrer">
+                            <FaTwitter />
+                        </a>
                     </div>
                 </motion.div>
             </div>
@@ -102,167 +118,185 @@ export default function Dashboard() {
                 align-items: center;
                 flex-direction: column;
                 display: flex;
-}
-                .background-video {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    object-fit: cover;
-                    z-index: 0;
-                }
+            }
 
-                .overlay {
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100%;
-                    background: rgba(0, 0, 0, 0.4);
-                    z-index: 0;
-                }
+            .background-video {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                z-index: 0;
+            }
 
-                .content {
-                    position: relative;
-                    z-index: 1;
-                    text-align: center;
-                    color: ${WHITE};
-                    padding: 20px;
-                    max-width: 1000px;
-                }
+            .overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.4);
+                z-index: 0;
+            }
 
-                .content h1 {
-                    font-size: clamp(28px, 5vw, 42px);
-                    font-weight: bold;
-                    margin-bottom: 20px;
-                }
+            .content {
+                position: relative;
+                z-index: 1;
+                text-align: center;
+                color: ${WHITE};
+                padding: 20px;
+                max-width: 1000px;
+            }
 
-                .content p {
-                    font-size: clamp(16px, 2.5vw, 18px);
-                    line-height: 1.6;
-                    max-width: 700px;
-                    margin: 0 auto;
-                }
+            .content h1 {
+                font-size: clamp(28px, 5vw, 42px);
+                font-weight: bold;
+                margin-bottom: 20px;
+            }
 
-                .highlight {
-                    background: linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    font-weight: bold;
-                    animation: glow 2s infinite alternate;
-                }
+            .content p {
+                font-size: clamp(16px, 2.5vw, 18px);
+                line-height: 1.6;
+                max-width: 700px;
+                margin: 0 auto;
+            }
 
-                @keyframes glow {
-                    from { text-shadow: 0 0 5px rgba(255,255,255,0.2); }
-                    to   { text-shadow: 0 0 15px rgba(255,255,255,0.6); }
-                }
+            .highlight {
+                background: linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77);
+                -webkit-background-clip: text;
+                -webkit-text-fill-color: transparent;
+                font-weight: bold;
+                animation: glow 2s infinite alternate;
+            }
 
-                .features {
-                    display: grid;
-                    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-                    gap: 20px;
-                    margin-top: 40px;
-                }
+            @keyframes glow {
+                from { text-shadow: 0 0 5px rgba(255,255,255,0.2); }
+                to   { text-shadow: 0 0 15px rgba(255,255,255,0.6); }
+            }
 
-                .card {
-                    padding: 20px;
-                    background: rgba(255, 255, 255, 0.1);
-                    border-radius: 12px;
-                    transition: transform 0.3s ease, background 0.3s ease, border 0.3s ease;
-                }
+            .features {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 20px;
+                margin-top: 40px;
+            }
 
-                .card:hover {
-                    transform: translateY(-8px) scale(1.03);
-                    background: rgba(255, 255, 255, 0.15);
-                    border: 1px solid rgba(255, 255, 255, 0.3);
-                }
+            .card {
+                padding: 20px;
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 12px;
+                transition: transform 0.3s ease, background 0.3s ease, border 0.3s ease;
+            }
 
-                .card h3 {
-                    font-size: 20px;
-                    margin-bottom: 10px;
-                }
+            .card:hover {
+                transform: translateY(-8px) scale(1.03);
+                background: rgba(255, 255, 255, 0.15);
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
 
-                .developer-section {
-                    margin-top: 50px;
-                }
+            .card h3 {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
 
-                .developer-section h2 {
-                    font-size: clamp(22px, 4vw, 28px);
-                    margin-bottom: 15px;
-                }
+            .developer-section {
+                margin-top: 50px;
+            }
 
-                .developer-section p {
-                    font-size: clamp(16px, 2.5vw, 18px);
-                    max-width: 850px;
-                    margin: 0 auto 30px;
-                    line-height: 1.6;
-                }
+            .developer-section h2 {
+                font-size: clamp(22px, 4vw, 28px);
+                margin-bottom: 15px;
+            }
 
-                .button-group {
-                    display: flex;
-                    gap: 20px;
-                    justify-content: center;
-                    flex-wrap: wrap;
-                }
+            .developer-section p {
+                font-size: clamp(16px, 2.5vw, 18px);
+                max-width: 850px;
+                margin: 0 auto 30px;
+                line-height: 1.6;
+            }
 
-                .start-btn {
-                    padding: 14px 28px;
-                    border-radius: 10px;
-                    background-color: ${WHITE};
-                    color: ${BLACK};
-                    text-decoration: none;
-                    font-weight: bold;
-                    font-size: 18px;
-                    transition: all 0.3s ease;
-                    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
-                    position: relative;
-                    overflow: hidden;
-                }
+            .button-group {
+                display: flex;
+                gap: 20px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
 
-                /* Hover effect with shine */
-                .start-btn::before {
-                    content: "";
-                    position: absolute;
-                    top: 0;
-                    left: -100%;
-                    width: 100%;
-                    height: 100%;
-                    background: linear-gradient(
-                        120deg,
-                        transparent,
-                        rgba(255,255,255,0.6),
-                        transparent
-                    );
-                    transition: 0.5s;
-                }
-                .start-btn:hover::before {
-                    left: 100%;
-                }
+            .start-btn {
+                padding: 14px 28px;
+                border-radius: 10px;
+                background-color: ${WHITE};
+                color: ${BLACK};
+                text-decoration: none;
+                font-weight: bold;
+                font-size: 18px;
+                transition: all 0.3s ease;
+                box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+                position: relative;
+                overflow: hidden;
+            }
 
-                .start-btn:hover {
-                    background: linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77);
-                    color: ${BLACK};
-                    transform: scale(1.05);
-                    box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
-                }
+            /* Hover effect with shine */
+            .start-btn::before {
+                content: "";
+                position: absolute;
+                top: 0;
+                left: -100%;
+                width: 100%;
+                height: 100%;
+                background: linear-gradient(
+                    120deg,
+                    transparent,
+                    rgba(255,255,255,0.6),
+                    transparent
+                );
+                transition: 0.5s;
+            }
+            .start-btn:hover::before {
+                left: 100%;
+            }
 
-                /* Press/Active effect */
-                .start-btn:active {
-                    transform: scale(0.95);
-                    box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
-                }
+            .start-btn:hover {
+                background: linear-gradient(90deg, #FF6B6B, #FFD93D, #6BCB77);
+                color: ${BLACK};
+                transform: scale(1.05);
+                box-shadow: 0px 6px 15px rgba(0,0,0,0.4);
+            }
 
-                /* Glow pulse animation */
-                .start-btn {
-                    animation: pulse 2s infinite;
-                }
+            .start-btn:active {
+                transform: scale(0.95);
+                box-shadow: 0px 3px 6px rgba(0,0,0,0.2);
+            }
 
-                @keyframes pulse {
-                    0% { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-                    50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
-                    100% { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
-                }
+            .start-btn {
+                animation: pulse 2s infinite;
+            }
+
+            @keyframes pulse {
+                0% { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+                50% { box-shadow: 0 0 20px rgba(255,255,255,0.6); }
+                100% { box-shadow: 0 0 10px rgba(255,255,255,0.2); }
+            }
+
+            /* Social Icons */
+            .social-links {
+                margin-top: 25px;
+                display: flex;
+                gap: 25px;
+                justify-content: center;
+            }
+
+            .social-links a {
+                font-size: 28px;
+                color: ${WHITE};
+                transition: transform 0.3s ease, color 0.3s ease;
+            }
+
+            .social-links a:hover {
+                transform: scale(1.2);
+                color: #00f7ff;
+            }
             `}</style>
         </div>
     );

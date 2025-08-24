@@ -4,6 +4,8 @@ export const WaveLoop= require('../Assets/Lottie/WaveLoop.json')
 export const WaveLoop1 = require('../Assets/Lottie/WaveLoop1.json')
 export const Waves = require('../Assets/Lottie/waves.mp4')
 export const simpleWave = require('../Assets/Lottie/simpleWave.mp4')
+export const CHAT_BOT = require('../Assets/Images/bot1.png')
+
 
 
 
