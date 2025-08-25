@@ -66,7 +66,7 @@ const Chat = () => {
           <h2>Shubham Singh Boura</h2>
         </div>
 
-        {/* <div className="chat-messages">
+        <div className="chat-messages">
           {chat?.map((msg, i) => (
             <div
               key={i}
@@ -97,39 +97,8 @@ const Chat = () => {
               </div>
             </div>
           )}
-        </div> */}
-<div className="chat-messages">
-  {chat?.map((msg, i) => (
-    <div
-      key={i}
-      className={`message-row ${msg.sender}`}
-    >
-      {msg.sender === "ai" && (
-        <div className="bot-avatar">
-          <img src={CHAT_BOT} alt="Bot" />
         </div>
-      )}
 
-      <div
-        className={`message-bubble ${msg.sender}`}
-      >
-        {msg.text}
-      </div>
-    </div>
-  ))}
-
-  {/* Typing loader */}
-  {loading && (
-    <div className="message-row ai">
-      <div className="bot-avatar">
-        <img src={CHAT_BOT} alt="Bot" />
-      </div>
-      <div className="message-bubble ai">
-        <Ellipsis className="typing-dots" size={28} />
-      </div>
-    </div>
-  )}
-</div>
         <div className="input-section">
           <div className="input-row">
             <input
