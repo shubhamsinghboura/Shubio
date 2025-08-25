@@ -1,4 +1,3 @@
-/* Container */
 .chat-container {
   display: flex;
   height: 100vh;
@@ -6,7 +5,6 @@
   color: white;
 }
 
-/* Sidebar */
 .sidebar {
   width: 260px;
   background: linear-gradient(135deg, #020010 0%, #040125 30%, #040827ff 90%, #030c31ff 100%);
@@ -46,7 +44,6 @@
   transform: translateX(3px);
 }
 
-/* Main Section */
 .main {
   flex: 1;
   display: flex;
@@ -131,7 +128,6 @@
   border-radius: 12px 12px 12px 0;
 }
 
-/* Input Section */
 .input-section {
   display: flex;
   flex-direction: column;
@@ -202,4 +198,18 @@
 
 .feature-icon {
   font-size: 16px;
+}
+
+.typing-dots {
+  color: #555;
+  animation: blink 1.5s infinite;
+}
+
+@keyframes blink {
+  0%, 80%, 100% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
 }

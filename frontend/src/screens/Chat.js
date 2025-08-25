@@ -1,9 +1,10 @@
 import Lottie from "lottie-react";
 import { AI_ROBOT, CHAT_BOT } from "../components/AsstesImports";
-import { History, Send, Mic, FileText, Link, Image } from "lucide-react";
+import { History, Send, Mic, FileText, Link, Image, Ellipsis } from "lucide-react";
 import '../screens/ChatStyle.css'
 import { useState } from "react";
 import { postRequest } from "../ApiMethods/Methods";
+
 const Chat = () => {
   const history = [
     "Chat with AI - Today",
@@ -13,32 +14,32 @@ const Chat = () => {
     "Shopping List",
   ];
 
-  const [messages, setMessages] = useState('')
+  const [messages, setMessages] = useState('');
   const [chat, setChat] = useState([]);
   const [loading, setLoading] = useState(false);
   const [persona, setPersona] = useState("hitesh");
+
   const sendMessage = async () => {
     if (!messages.trim()) return;
 
     setChat([...chat, { sender: "user", text: messages }]);
-    setLoading(true)
+    setLoading(true);
     try {
+      setMessages('');
+
       const data = await postRequest("chat", {
         persona,
         message: messages
       });
-      setChat((prev) => [...prev, { sender: "ai", text: data?.replyAI }]);
-      setLoading(true)
 
+      setChat((prev) => [...prev, { sender: "ai", text: data?.replyAI }]);
     } catch (err) {
       console.error("Error:", err.message);
       setChat((prev) => [...prev, { sender: "system", text: `⚠️ ${err.message}` }]);
     } finally {
       setLoading(false);
     }
-
-
-  }
+  };
 
   return (
     <div className="chat-container">
@@ -65,7 +66,7 @@ const Chat = () => {
           <h2>Shubham Singh Boura</h2>
         </div>
 
-        <div className="chat-messages">
+        {/* <div className="chat-messages">
           {chat?.map((msg, i) => (
             <div
               key={i}
@@ -77,15 +78,58 @@ const Chat = () => {
                 </div>
               )}
               <div
-                className={`message-bubble ${msg.sender === "user" ? "user-bubble" : "ai-bubble"
-                  }`}
+                className={`message-bubble ${
+                  msg.sender === "user" ? "user-bubble" : "ai-bubble"
+                }`}
               >
                 {msg.text}
               </div>
             </div>
           ))}
-        </div>
 
+          {loading && (
+            <div className="message-row ai">
+              <div className="bot-avatar">
+                <img src={CHAT_BOT} alt="Bot" />
+              </div>
+              <div className="message-bubble ai-bubble">
+                <Ellipsis className="typing-dots" size={28} />
+              </div>
+            </div>
+          )}
+        </div> */}
+<div className="chat-messages">
+  {chat?.map((msg, i) => (
+    <div
+      key={i}
+      className={`message-row ${msg.sender}`}
+    >
+      {msg.sender === "ai" && (
+        <div className="bot-avatar">
+          <img src={CHAT_BOT} alt="Bot" />
+        </div>
+      )}
+
+      <div
+        className={`message-bubble ${msg.sender}`}
+      >
+        {msg.text}
+      </div>
+    </div>
+  ))}
+
+  {/* Typing loader */}
+  {loading && (
+    <div className="message-row ai">
+      <div className="bot-avatar">
+        <img src={CHAT_BOT} alt="Bot" />
+      </div>
+      <div className="message-bubble ai">
+        <Ellipsis className="typing-dots" size={28} />
+      </div>
+    </div>
+  )}
+</div>
         <div className="input-section">
           <div className="input-row">
             <input
@@ -97,7 +141,6 @@ const Chat = () => {
             <button className="send-btn" onClick={sendMessage}>
               <Send size={20} color="white" />
             </button>
-
           </div>
 
           <div className="feature-row">
