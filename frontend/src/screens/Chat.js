@@ -2,6 +2,8 @@ import Lottie from "lottie-react";
 import { AI_ROBOT, CHAT_BOT } from "../components/AsstesImports";
 import { History, Send, Mic, FileText, Link, Image } from "lucide-react";
 import '../screens/ChatStyle.css'
+import { useState } from "react";
+import { postRequest } from "../ApiMethods/Methods";
 const Chat = () => {
   const history = [
     "Chat with AI - Today",
@@ -11,13 +13,32 @@ const Chat = () => {
     "Shopping List",
   ];
 
-  const messages = [
-    { sender: "ai", text: "Hello! How can I help you today?" },
-    { sender: "user", text: "Can you summarize my meeting notes?" },
-    { sender: "ai", text: "Sure! Please upload your meeting notes document." },
-    { sender: "user", text: "Done ✅" },
-    { sender: "ai", text: "Great, I’ll analyze it now." },
-  ];
+  const [messages, setMessages] = useState('')
+  const [chat, setChat] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [persona, setPersona] = useState("hitesh");
+  const sendMessage = async () => {
+    if (!messages.trim()) return;
+
+    setChat([...chat, { sender: "user", text: messages }]);
+    setLoading(true)
+    try {
+      const data = await postRequest("chat", {
+        persona,
+        message: messages
+      });
+      setChat((prev) => [...prev, { sender: "ai", text: data?.replyAI }]);
+      setLoading(true)
+
+    } catch (err) {
+      console.error("Error:", err.message);
+      setChat((prev) => [...prev, { sender: "system", text: `⚠️ ${err.message}` }]);
+    } finally {
+      setLoading(false);
+    }
+
+
+  }
 
   return (
     <div className="chat-container">
@@ -45,7 +66,7 @@ const Chat = () => {
         </div>
 
         <div className="chat-messages">
-          {messages.map((msg, i) => (
+          {chat?.map((msg, i) => (
             <div
               key={i}
               className={`message-row ${msg.sender === "user" ? "user" : "ai"}`}
@@ -56,9 +77,8 @@ const Chat = () => {
                 </div>
               )}
               <div
-                className={`message-bubble ${
-                  msg.sender === "user" ? "user-bubble" : "ai-bubble"
-                }`}
+                className={`message-bubble ${msg.sender === "user" ? "user-bubble" : "ai-bubble"
+                  }`}
               >
                 {msg.text}
               </div>
@@ -68,10 +88,16 @@ const Chat = () => {
 
         <div className="input-section">
           <div className="input-row">
-            <input type="text" placeholder="Type a message..." />
-            <button className="send-btn">
+            <input
+              value={messages}
+              onChange={(e) => setMessages(e.target.value)}
+              type="text"
+              placeholder="Type a message..."
+            />
+            <button className="send-btn" onClick={sendMessage}>
               <Send size={20} color="white" />
             </button>
+
           </div>
 
           <div className="feature-row">
@@ -81,7 +107,7 @@ const Chat = () => {
               { label: "Links", icon: <Link size={18} /> },
               { label: "Picture", icon: <Image size={18} /> },
             ].map((btn, i) => (
-              <button key={i} className="feature-btn">
+              <button key={i} className="feature-btn" onClick={sendMessage}>
                 <span className="feature-icon">{btn.icon}</span>
                 {btn.label}
               </button>
