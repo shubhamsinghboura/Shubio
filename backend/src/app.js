@@ -1,31 +1,22 @@
-// backend/src/app.js
 const express = require("express");
 const cors = require("cors");
-const dotenv = require("dotenv");
 const bodyParser = require("body-parser");
-const messageRoutes = require("./routes/message"); // ✅ tera message API
+const messageRoutes = require("./routes/message");
 const ragRoutes = require("./routes/ragRoutes");
-
-dotenv.config();
+const chatRoutes = require("./routes/chatRoutes");
 
 const app = express();
 
-// Middlewares
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Routes
-app.use("/api", messageRoutes); // ✅ /api/message endpoint available
+app.use("/api", messageRoutes);
+app.use("/api/rag", ragRoutes);
+app.use("/api", chatRoutes);
 
-app.use("/rag", ragRoutes);
+app.get("/", (req, res) => res.send("🚀 API Server Running"));
 
-// Root
-app.get("/", (req, res) => {
-  res.send("🚀 API Server Running");
-});
-
-// Error handling
 app.use((err, req, res, next) => {
   console.error(err.stack);
   res.status(500).send("Something broke!");

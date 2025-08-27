@@ -64,9 +64,7 @@ const handleFileChange = async (e) => {
   if (!file) return;
 
   try {
-    let response;
     const fileType = fileInputRef.current.getAttribute("data-type");
-
     const formData = new FormData();
     formData.append("file", file);
 
@@ -83,22 +81,21 @@ const handleFileChange = async (e) => {
       return;
     }
 
-    response = await fetch(`http://localhost:5000/rag/upload/${endpoint}`, {
+    const response = await fetch(`http://localhost:5000/api/rag/upload/${endpoint}`, {
       method: "POST",
       body: formData,
     });
 
     const data = await response.json();
+    if (!response.ok) throw new Error(data?.error || "Upload failed on server");
 
-    if (!response.ok) {
-      throw new Error(data?.error || "Upload failed on server");
-    }
+    // 👇 yaha docId state me save karo
+    setUploadedDoc({ id: data.docId, name: file.name });
 
     setChat((prev) => [
       ...prev,
       { sender: "system", text: `✅ Uploaded: ${file.name}` },
     ]);
-    console.log("Upload success:", data);
   } catch (err) {
     console.error("Upload error:", err);
     setChat((prev) => [
@@ -106,9 +103,10 @@ const handleFileChange = async (e) => {
       { sender: "system", text: `⚠️ Upload failed: ${err.message}` },
     ]);
   } finally {
-    e.target.value = ""; // reset input
+    e.target.value = ""; 
   }
 };
+
 
   const handleLinkUpload = async (url) => {
     try {
@@ -131,27 +129,35 @@ const handleFileChange = async (e) => {
 const sendMessage = async () => {
   if (!messages.trim()) return;
 
+  // 1️⃣ Show user message in chat
   setChat((prev) => [...prev, { sender: "user", text: messages }]);
   setLoading(true);
 
   try {
-    const data = await postRequest("message", { 
-      question: messages,      // frontend me hamesha question
-      useDoc: uploadedDoc ? true : false
+    // 2️⃣ Call backend chat API
+    const data = await postRequest("chat", {
+      message: messages,
+      persona,               // e.g., "hitesh"
+      docId: uploadedDoc?.id // optional, agar PDF upload hua hai
     });
+    console.log("Chat API response:", messages,persona,uploadedDoc);
 
+    // 3️⃣ Show AI response in chat
     setChat((prev) => [...prev, { sender: "ai", text: data?.replyAI }]);
+
   } catch (err) {
-    console.error("Error:", err.message);
+    // 4️⃣ Show error in chat
     setChat((prev) => [
       ...prev,
       { sender: "system", text: `⚠️ ${err.message}` }
     ]);
   } finally {
+    // 5️⃣ Reset input & loading
     setMessages("");
     setLoading(false);
   }
 };
+
 
   // ---------------- Emoji Handling ----------------
 
