@@ -24,30 +24,30 @@ const Chat = () => {
   const [loading, setLoading] = useState(false);
   const [persona, setPersona] = useState("hitesh");
   const [showEmoji, setShowEmoji] = useState(false);
-const [uploadedDoc, setUploadedDoc] = useState(null); // uploaded document state
+  const [uploadedDoc, setUploadedDoc] = useState(null);
+  const [uploadingDocLoader, setUploadingDocLoader] = useState(false);
+  const [selectedHistory, setSelectedHistory] = useState(null);
   const messagesEndRef = useRef(null);
   const emojiRef = useRef(null);
   const fileInputRef = useRef(null);
 
   const handleFileUpload = async (file) => {
-  // Har file ko ek unique ID assign kar do
-  const uploadedDoc = {
-    id: uuidv4(),       // always unique ID
-    name: file.name,    // file ka naam
-    type: file.type,    // file ka type
-    size: file.size,    // file ka size
-    file: file          // actual file object
+    // Har file ko ek unique ID assign kar do
+    const uploadedDoc = {
+      id: uuidv4(),
+      name: file.name,
+      type: file.type,
+      size: file.size,
+      file: file
+    };
+
+    setUploadedDoc(uploadedDoc);
   };
 
-  setUploadedDoc(uploadedDoc); // state me store kar lo
-};
-
-  // Scroll to bottom on new message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [chat]);
 
-  // ---------------- File Upload Handlers ----------------
 
   const handleDocumentClick = () => {
     fileInputRef.current.setAttribute("data-type", "document");
@@ -59,53 +59,55 @@ const [uploadedDoc, setUploadedDoc] = useState(null); // uploaded document state
     fileInputRef.current.click();
   };
 
-const handleFileChange = async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
+  const handleFileChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  try {
-    const fileType = fileInputRef.current.getAttribute("data-type");
-    const formData = new FormData();
-    formData.append("file", file);
+    try {
+      setUploadingDocLoader(true);
+      const fileType = fileInputRef.current.getAttribute("data-type");
+      const formData = new FormData();
+      formData.append("file", file);
 
-    let endpoint = "";
-    if (fileType === "document") {
-      endpoint = "document";
-    } else if (fileType === "image") {
-      endpoint = "image";
-    } else {
+      let endpoint = "";
+      if (fileType === "document") {
+        endpoint = "document";
+      } else if (fileType === "image") {
+        endpoint = "image";
+      } else {
+        setChat((prev) => [
+          ...prev,
+          { sender: "system", text: "⚠️ Unsupported file type." },
+        ]);
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/api/rag/upload/${endpoint}`, {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+      if (!response.ok) throw new Error(data?.error || "Upload failed on server");
+
+      // yaha docId state me save karo
+      setUploadedDoc({ id: data.docId, name: file.name });
+
       setChat((prev) => [
         ...prev,
-        { sender: "system", text: "⚠️ Unsupported file type." },
+        { sender: "system", text: `✅ Uploaded: ${file.name}` },
       ]);
-      return;
+    } catch (err) {
+      console.error("Upload error:", err);
+      setChat((prev) => [
+        ...prev,
+        { sender: "system", text: `⚠️ Upload failed: ${err.message}` },
+      ]);
+    } finally {
+      setUploadingDocLoader(false);
+      e.target.value = "";
     }
-
-    const response = await fetch(`http://localhost:5000/api/rag/upload/${endpoint}`, {
-      method: "POST",
-      body: formData,
-    });
-
-    const data = await response.json();
-    if (!response.ok) throw new Error(data?.error || "Upload failed on server");
-
-    // 👇 yaha docId state me save karo
-    setUploadedDoc({ id: data.docId, name: file.name });
-
-    setChat((prev) => [
-      ...prev,
-      { sender: "system", text: `✅ Uploaded: ${file.name}` },
-    ]);
-  } catch (err) {
-    console.error("Upload error:", err);
-    setChat((prev) => [
-      ...prev,
-      { sender: "system", text: `⚠️ Upload failed: ${err.message}` },
-    ]);
-  } finally {
-    e.target.value = ""; 
-  }
-};
+  };
 
 
   const handleLinkUpload = async (url) => {
@@ -124,42 +126,37 @@ const handleFileChange = async (e) => {
     }
   };
 
-  // ---------------- Chat Message Handling ----------------
 
-const sendMessage = async () => {
-  if (!messages.trim()) return;
+  const sendMessage = async () => {
+    if (!messages.trim()) return;
 
-  // 1️⃣ Show user message in chat
-  setChat((prev) => [...prev, { sender: "user", text: messages }]);
-  setLoading(true);
+    setChat((prev) => [...prev, { sender: "user", text: messages }]);
+    setLoading(true);
 
-  try {
-    // 2️⃣ Call backend chat API
-    const data = await postRequest("chat", {
-      message: messages,
-      persona,               // e.g., "hitesh"
-      docId: uploadedDoc?.id // optional, agar PDF upload hua hai
-    });
-    console.log("Chat API response:", messages,persona,uploadedDoc);
+    try {
+      setMessages("");
 
-    // 3️⃣ Show AI response in chat
-    setChat((prev) => [...prev, { sender: "ai", text: data?.replyAI }]);
+      const data = await postRequest("chat", {
+        message: messages,
+        persona,
+        docId: uploadedDoc?.id
+      });
+      console.log("Chat API response:", messages, persona, uploadedDoc);
 
-  } catch (err) {
-    // 4️⃣ Show error in chat
-    setChat((prev) => [
-      ...prev,
-      { sender: "system", text: `⚠️ ${err.message}` }
-    ]);
-  } finally {
-    // 5️⃣ Reset input & loading
-    setMessages("");
-    setLoading(false);
-  }
-};
+      setChat((prev) => [...prev, { sender: "ai", text: data?.replyAI }]);
+
+    } catch (err) {
+      setChat((prev) => [
+        ...prev,
+        { sender: "system", text: `⚠️ ${err.message}` }
+      ]);
+    } finally {
+      setMessages("");
+      setLoading(false);
+    }
+  };
 
 
-  // ---------------- Emoji Handling ----------------
 
   const onEmojiClick = (emojiData) => {
     setMessages((prev) => prev + emojiData.emoji);
@@ -182,72 +179,83 @@ const sendMessage = async () => {
 
   return (
     <div className="chat-container">
-      {/* Sidebar */}
       <div className="sidebar">
         <div className="sidebar-header">
           <History size={22} style={{ marginRight: "8px" }} />
           Chat History
         </div>
         <div className="chat-history">
-          {history.map((chat, i) => (
-            <div key={i} className="chat-item">{chat}</div>
+          {history.map((chatItem, i) => (
+            <div
+              key={i}
+              className={`chat-item ${selectedHistory === i ? "selected" : ""}`}
+              onClick={() => setSelectedHistory(i)}
+            >
+              {chatItem}
+            </div>
           ))}
         </div>
       </div>
 
-      {/* Main Chat Section */}
       <div className="main">
-        {/* Header */}
         <div className="main-header">
           <div className="header-avatar">
             <Lottie animationData={AI_ROBOT} loop={true} />
           </div>
-          <h2>Shubham Singh Boura</h2>
+          <h2>Hitesh Chaudhary</h2>
         </div>
 
-        {/* Chat Messages */}
         <div className="chat-messages">
-          {chat?.map((msg, i) => (
-            <div key={i} className={`message-row ${msg.sender === "user" ? "user" : msg.sender}`}>
-              {msg.sender === "ai" && (
-                <div className="bot-avatar">
-                  <img src={CHAT_BOT} alt="Bot" />
-                </div>
-              )}
-              <div className={`message-bubble ${msg.sender}-bubble`}>
-                {msg.sender === "ai" ? (
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                      code({ className, children, ...props }) {
-                        const match = /language-(\w+)/.exec(className || "");
-                        return match ? (
-                          <SyntaxHighlighter
-                            style={oneDark}
-                            language={match[1]}
-                            PreTag="div"
-                            {...props}
-                          >
-                            {String(children).replace(/\n$/, "")}
-                          </SyntaxHighlighter>
-                        ) : (
-                          <code className="inline-code" {...props}>
-                            {children}
-                          </code>
-                        );
-                      },
-                    }}
-                  >
-                    {msg.text}
-                  </ReactMarkdown>
-                ) : (
-                  msg.text
-                )}
-              </div>
+          {chat.length === 0 && !loading ? (
+            <div className="welcome-message">
+              <h3>Welcome to Shubio!</h3>
+              <p>
+                Hi! 👋 How can I help you today?
+              </p>
             </div>
-          ))}
+          ) : (
+            chat.map((msg, i) => (
+              <div key={i} className={`message-row ${msg.sender === "user" ? "user" : msg.sender}`}>
+                {msg.sender === "ai" && (
+                  <div className="bot-avatar">
+                    <img src={CHAT_BOT} alt="Bot" />
+                  </div>
+                )}
+                <div className={`message-bubble ${msg.sender}-bubble`}>
+                  {msg.sender === "ai" ? (
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm]}
+                      components={{
+                        code({ className, children, ...props }) {
+                          const match = /language-(\w+)/.exec(className || "");
+                          return match ? (
+                            <SyntaxHighlighter
+                              style={oneDark}
+                              language={match[1]}
+                              PreTag="div"
+                              {...props}
+                            >
+                              {String(children).replace(/\n$/, "")}
+                            </SyntaxHighlighter>
+                          ) : (
+                            <code className="inline-code" {...props}>
+                              {children}
+                            </code>
+                          );
+                        },
+                      }}
+                    >
+                      {msg.text}
+                    </ReactMarkdown>
+                  ) : (
+                    msg.text
+                  )}
+                </div>
+              </div>
+            ))
+          )}
 
-          {loading && (
+          {(loading || uploadingDocLoader) && (
             <div className="message-row ai">
               <div className="bot-avatar">
                 <img src={CHAT_BOT} alt="Bot" />
@@ -261,7 +269,6 @@ const sendMessage = async () => {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Input + Features */}
         <div className="input-section">
           <div className="input-row">
             <input
@@ -294,7 +301,7 @@ const sendMessage = async () => {
 
           <div className="feature-row">
             {[
-              { label: "Voice Chat", icon: <Mic size={18} />, onClick: () => {} },
+              { label: "Voice Chat", icon: <Mic size={18} />, onClick: () => { } },
               { label: "Document", icon: <FileText size={18} />, onClick: handleDocumentClick },
               {
                 label: "Links",
@@ -312,13 +319,12 @@ const sendMessage = async () => {
               </button>
             ))}
 
-            {/* Hidden File Input */}
             <input
               type="file"
               ref={fileInputRef}
               onChange={handleFileChange}
               style={{ display: "none" }}
-              accept=".pdf,.doc,.docx,.txt,image/*"
+              accept="application/pdf"
             />
           </div>
         </div>

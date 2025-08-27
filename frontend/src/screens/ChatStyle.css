@@ -266,3 +266,19 @@
   -ms-overflow-style: none;  /* IE/Edge */
   scrollbar-width: none;     /* Firefox */
 }
+
+.chat-item {
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.chat-item:hover {
+   background-color: #ffb366;
+}
+
+.chat-item.selected {
+ background-color: #ffb366;
+  color: white;
+  font-weight: bold;
+}
