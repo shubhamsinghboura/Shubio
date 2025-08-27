@@ -136,7 +136,7 @@ const sendMessage = async () => {
 
   try {
     const data = await postRequest("message", { 
-      question: messages,      // frontend me hamesha question
+      question: messages,      
       useDoc: uploadedDoc ? true : false
     });
 
