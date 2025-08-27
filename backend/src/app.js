@@ -1,7 +1,6 @@
 const express = require("express");
 const cors = require("cors");
 const bodyParser = require("body-parser");
-const messageRoutes = require("./routes/message");
 const ragRoutes = require("./routes/ragRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 
@@ -11,7 +10,6 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use("/api", messageRoutes);
 app.use("/api/rag", ragRoutes);
 app.use("/api", chatRoutes);
 
