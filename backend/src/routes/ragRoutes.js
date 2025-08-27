@@ -118,19 +118,4 @@ router.post("/upload/picture", upload.single("file"), async (req, res) => {
 
 const { queryRag } = require("../utils/Rag");
 
-router.post("/ask", async (req, res) => {
-  try {
-    const { question } = req.body;
-    if (!question) {
-      return res.status(400).json({ error: "Question is required" });
-    }
-
-    const answer = await queryRag(question);
-    res.json({ answer });
-  } catch (error) {
-    console.error("RAG query error:", error.message);
-    res.status(500).json({ error: "Failed to answer question" });
-  }
-});
-
 module.exports = router;

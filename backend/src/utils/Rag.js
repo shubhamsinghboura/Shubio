@@ -68,29 +68,21 @@ async function addDocument(text) {
 // Query RAG
 async function queryRag(question) {
   const vs = getVectorStore();
-  const results = await vs.similaritySearch(question, 3);
-
-  const context = results.map((r) => r.pageContent).join("\n");
+  const results = await vs.similaritySearch(question, 3); // 3 most relevant docs
+  const context = results.map(r => r.pageContent).join("\n");
 
   const model = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-    modelName: "gpt-4o-mini", // ✅ Chat model
+    modelName: "gpt-4o-mini",
     temperature: 0,
   });
 
   const response = await model.invoke([
-    {
-      role: "system",
-      content:
-        'You are a helpful assistant. Use the provided context to answer. If irrelevant, say "Sorry, I don’t know."',
-    },
-    {
-      role: "user",
-      content: `Context:\n${context}\n\nQuestion: ${question}\nAnswer:`,
-    },
+    { role: "system", content: 'You are a helpful assistant. Use the context to answer.' },
+    { role: "user", content: `Context:\n${context}\n\nQuestion: ${question}\nAnswer:` }
   ]);
 
-  return response.content; // ✅ safe now
+  return response.content;
 }
 
 module.exports = { initRag, getVectorStore, addDocument, queryRag };
