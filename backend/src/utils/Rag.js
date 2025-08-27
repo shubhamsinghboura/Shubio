@@ -1,6 +1,9 @@
 const { FaissStore } = require("@langchain/community/vectorstores/faiss");
-const { OpenAIEmbeddings, ChatOpenAI } = require("@langchain/openai"); // ✅ added ChatOpenAI
+const { OpenAIEmbeddings, ChatOpenAI } = require("@langchain/openai");
 const { MongoClient } = require("mongodb");
+const { RecursiveCharacterTextSplitter } = require("@langchain/textsplitters");
+const fs = require("fs");
+const OpenAI = require("openai");
 
 let vectorStore;
 let embeddings;
@@ -10,6 +13,14 @@ async function initRag() {
     apiKey: process.env.OPENAI_API_KEY,
   });
 
+  // ✅ Agar FAISS pehle se saved hai to usko load karo
+  if (fs.existsSync("./faiss_index")) {
+    vectorStore = await FaissStore.load("./faiss_index", embeddings);
+    console.log("✅ Loaded FAISS index from disk");
+    return;
+  }
+
+  // ✅ Agar FAISS saved nahi hai to MongoDB se build karo
   const client = new MongoClient(process.env.MONGO_URI);
   await client.connect();
   console.log("✅ MongoDB connected for RAG");
@@ -20,21 +31,38 @@ async function initRag() {
   const docs = await collection.find({}).toArray();
 
   if (!docs.length) {
-    console.log("⚠️ No documents found in MongoDB, initializing empty FAISS index");
+    console.log("⚠️ No documents found, creating empty FAISS index");
     vectorStore = await FaissStore.fromTexts([], [], embeddings);
+    await vectorStore.save("./faiss_index");
     return;
   }
 
-  const texts = docs.map((d) => d.content || "");
-  const metadatas = docs.map((d) => ({
-    _id: d._id.toString(),
-    source: d.source || "mongodb",
-    ...d.metadata,
-  }));
+  const textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000,
+    chunkOverlap: 200,
+  });
 
-  vectorStore = await FaissStore.fromTexts(texts, metadatas, embeddings);
+  let allTexts = [];
+  let allMetadatas = [];
 
-  console.log(`✅ RAG initialized with ${texts.length} docs in FAISS index`);
+  for (const d of docs) {
+    const chunks = await textSplitter.splitText(d.content || "");
+    allTexts.push(...chunks);
+    allMetadatas.push(
+      ...chunks.map(() => ({
+        _id: d._id.toString(),
+        source: d.source || "mongodb",
+        ...d.metadata,
+      }))
+    );
+  }
+
+  vectorStore = await FaissStore.fromTexts(allTexts, allMetadatas, embeddings);
+
+  // ✅ Save FAISS to disk
+  await vectorStore.save("./faiss_index");
+
+  console.log(`✅ RAG initialized with ${allTexts.length} chunks`);
 }
 
 function getVectorStore() {
@@ -42,7 +70,7 @@ function getVectorStore() {
   return vectorStore;
 }
 
-// Add new document
+// ✅ Add new document
 async function addDocument(text) {
   const client = new MongoClient(process.env.MONGO_URI);
   await client.connect();
@@ -55,26 +83,42 @@ async function addDocument(text) {
     metadata: {},
   });
 
-  // Also add to FAISS immediately
-  await vectorStore.addDocuments([
-    { pageContent: text, metadata: { _id: result.insertedId.toString() } },
-  ]);
+  const textSplitter = new RecursiveCharacterTextSplitter({
+    chunkSize: 1000,
+    chunkOverlap: 200,
+  });
+  const chunks = await textSplitter.splitText(text);
 
-  console.log("📄 Document added:", result.insertedId.toString());
+  await vectorStore.addDocuments(
+    chunks.map((chunk) => ({
+      pageContent: chunk,
+      metadata: { _id: result.insertedId.toString() },
+    }))
+  );
+
+  // ✅ Save updated FAISS to disk
+  await vectorStore.save("./faiss_index");
+
+  console.log("📄 Document added & FAISS updated:", result.insertedId.toString());
 
   await client.close();
 }
 
-// Query RAG
 async function queryRag(question) {
   const vs = getVectorStore();
   const results = await vs.similaritySearch(question, 3);
 
-  const context = results.map((r) => r.pageContent).join("\n");
+  let context = results.map((r) => r.pageContent).join("\n");
 
+  const MAX_CHARS = 6000;
+  if (context.length > MAX_CHARS) {
+    context = context.slice(0, MAX_CHARS);
+  }
+
+  // ✅ use ChatOpenAI instead of OpenAI
   const model = new ChatOpenAI({
     apiKey: process.env.OPENAI_API_KEY,
-    modelName: "gpt-4o-mini", // ✅ Chat model
+    modelName: "gpt-4.1-mini",
     temperature: 0,
   });
 
@@ -90,7 +134,7 @@ async function queryRag(question) {
     },
   ]);
 
-  return response.content; // ✅ safe now
+  return response.content;
 }
 
 module.exports = { initRag, getVectorStore, addDocument, queryRag };

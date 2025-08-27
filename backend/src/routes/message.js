@@ -40,7 +40,7 @@ router.post("/message", async (req, res) => {
       conversationHistory.hitesh.push({ role: "user", content: question });
 
       const aiResponse = await openAi.chat.completions.create({
-        model: "gpt-4o-mini",
+        model: "gpt-4.1-mini",
         messages: [
           { role: "system", content: personas.hitesh },
           ...conversationHistory.hitesh

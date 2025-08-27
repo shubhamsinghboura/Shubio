@@ -4,11 +4,10 @@ const client = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Simple Chat Function
 async function queryChat(message) {
   try {
     const completion = await client.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4.1-mini",
       messages: [
         { role: "system", content: "You are a helpful AI assistant." },
         { role: "user", content: message },
